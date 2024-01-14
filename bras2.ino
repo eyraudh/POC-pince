@@ -2,8 +2,8 @@
 #include <SoftwareSerial.h>
 
 #define BUTTON_PIN 1
-#define MAX_ANGLE 360
-#define MIN_ANGLE 0
+#define MAX_ANGLE 180
+#define MIN_ANGLE -180
 #define k 50
 
 RotaryEncoder encoder1(4, 5);  // (DT, CLK) BASE_ROTATION
@@ -14,7 +14,7 @@ RotaryEncoder encoders[4] = {encoder3, encoder4, encoder2, encoder1} ;
 
 SoftwareSerial BTSerial(13, 12); // Changed TX, RX pins to 13, 12
 
-int pos[4] = {0,0,0,0};
+int pos[4] = {0,145,90,120};
 int newPos[4] = {-1,-1,-1,-1};
 int oldPosPasAPas = 0;
 bool isOpen = true;
@@ -61,21 +61,21 @@ void updateValues(){
 }
 
 int encoderValueToAngle(int value){
-  if (value >= 0){
-    return map(value%20, 0, 20, MIN_ANGLE, MAX_ANGLE);
-  }
-  else{
-    return map(value%20, -20 , 0, MIN_ANGLE, MAX_ANGLE);
-  }
+  return map(value%20, -20, 20, MIN_ANGLE, MAX_ANGLE);
 }
 
 String serialisedString(int pos[4]){
+  int tab[4] = {
+      0,
+      110, // min 45 - 145
+      120, // min 40 - 180
+      120 // min 60 - 270
+  };
   String s = "";
   s += String(pos[0]*10)+":";
-  for(int i = 1; i < 4; i++){
-    s += String(encoderValueToAngle(pos[i]));
-    s += ":";
-  }
+  s += String(-encoderValueToAngle(pos[1])+tab[1])+":";
+  s += String(encoderValueToAngle(pos[2])+tab[2])+":";
+  s += String(-encoderValueToAngle(pos[3])+tab[3])+":";
   s += isOpen;
   s += "q";
   return s;
